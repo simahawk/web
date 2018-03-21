@@ -26,6 +26,14 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       this.rows = params.matrix_data.rows;
       this.matrix_data = params.matrix_data;
     },
+    /**
+     * Main render function for the matrix widget.  It is rendered as a table. For now,
+     * this method does not wait for the field widgets to be ready.
+     *
+     * @override
+     * @private
+     * returns {Deferred} this deferred is resolved immediately
+     */
     _renderView: function () {
       var self = this;
 
@@ -49,6 +57,13 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       }
       return this._super();
     },
+    /**
+     * Render the table body. Looks for the table body and renders the rows in it.
+     * Also it sets the tabindex on every input element.
+     *
+     * @private
+     * return {jQueryElement} The table body element that was just filled.
+     */
     _renderBody: function () {
       var $body = $('<tbody>').append(this._renderRows());
       _.each($body.find('input'), function (td, i) {
@@ -56,7 +71,14 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       });
       return $body;
     },
-    _renderHeader: function (isGrouped) {
+    /**
+     * Render the table hed of our matrix. Looks for the first table head 
+     * and inserts the header into it.
+     *
+     * @private
+     * @return {jQueryElement} The thead element that was inserted into.
+     */
+    _renderHeader: function () {
       var $tr = $('<tr>')
           .append(_.map(this.columns, this._renderHeaderCell.bind(this)));
       // wipe 1st column header
@@ -66,6 +88,13 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       }
       return $('<thead>').append($tr);
     },
+    /**
+     * Render a single header cell. Creates a th and adds the description as text.
+     *
+     * @private
+     * @param {jQueryElement} node
+     * @returns {jQueryElement} the created <th> node.
+     */
     _renderHeaderCell: function (node) {
       var name = node.attrs.name;
       var field = this.state.fields[name];
@@ -98,9 +127,25 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       }
       return $th;
     },
+    /**
+     * Proxy call to function rendering single row.
+     *
+     * @private
+     * @returns {String} a string with the generated html.
+     *
+     */
+
     _renderRows: function () {
       return _.map(this.rows, this._renderRow.bind(this));
     },
+    /**
+     * Render a single row with all its columns. Renders all the cells and then wraps them with a <tr>.
+     * If aggregate is set on the row it also will generate the aggregate cell.
+     *
+     * @private
+     * @param {Object} row: The row that will be rendered.
+     * @returns {jQueryElement} the <tr> element that has been rendered. 
+     */
     _renderRow: function (row) {
       var self = this;
       var $cells = _.map(this.columns, function (node, index) {
@@ -115,6 +160,13 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       }
       return $tr;
     },
+    /**
+     * Create a cell and fill it with the aggregate value.
+     *
+     * @private
+     * @param {Object} row: the row object to aggregate.
+     * @returns {jQueryElement} The rendered cell.
+     */
     _renderAggregateRowCell: function (row) {
       var $cell = $('<td/>', {class: 'row-total text-right'});
       this._apply_aggregate_value($cell, row.aggregate);
