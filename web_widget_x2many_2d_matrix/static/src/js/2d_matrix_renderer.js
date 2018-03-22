@@ -79,10 +79,8 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
      * @return {jQueryElement} The thead element that was inserted into.
      */
     _renderHeader: function () {
-      var $tr = $('<tr>')
-          .append(_.map(this.columns, this._renderHeaderCell.bind(this)));
-      // wipe 1st column header
-      $tr.find('th:first').empty();
+      var $tr = $('<tr>').append('<th/>');
+      $tr= $tr.append(_.map(this.columns, this._renderHeaderCell.bind(this)));
       if (this.matrix_data.show_row_totals) {
         $tr.append($('<th/>', {class: 'total'}));
       }
@@ -148,17 +146,30 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
      */
     _renderRow: function (row) {
       var self = this;
+      var $tr = $('<tr/>', {class: 'o_data_row'});
+      $tr = $tr.append(self._renderLabelCell(row.data[0]));
       var $cells = _.map(this.columns, function (node, index) {
         var record = row.data[index];
         // make the widget use our field value for each cell
         node.attrs.name = self.matrix_data.field_value;
-        return self._renderBodyCell(record, node, index, {mode: 'readonly'});
+        return self._renderBodyCell(record, node, index, {mode:''});
       });
-      var $tr = $('<tr/>', {class: 'o_data_row'}).append($cells);
+      $tr = $tr.append($cells);
       if (row.aggregate) {
         $tr.append(self._renderAggregateRowCell(row));
       }
       return $tr;
+    },
+    _renderLabelCell: function(record) {
+      var $td = $('<td>');
+      var value = record.data[this.matrix_data.field_y_axis];
+      if (value.type == 'record') {
+        // we have a related record
+        value = value.data.display_name;
+      }
+      // get 1st column filled w/ Y label
+      $td.text(value);
+      return $td;
     },
     /**
      * Create a cell and fill it with the aggregate value.
@@ -202,17 +213,6 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         'data-form-id': record.id,
         'data-id': record.data.id,
       });
-      if (colIndex == 0) {
-        var value = record.data[this.matrix_data.field_y_axis];
-        if (value.type == 'record') {
-          // we have a related record
-          value = value.data.display_name;
-        }
-        // get 1st column filled w/ Y label
-        $td.text(value);
-        return $td;
-      }
-
       // We register modifiers on the <td> element so that it gets the correct
       // modifiers classes (for styling)
       var modifiers = this._registerModifiers(node, record, $td, _.pick(options, 'mode'));
