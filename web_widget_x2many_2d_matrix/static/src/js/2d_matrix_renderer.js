@@ -323,12 +323,29 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         });
       });
     },
+    /**
+     * Takes the given Value, formats it and adds it to the given cell.
+     *
+     * @private
+     * @param {jQueryElement} $cell: The Cell where the aggregate should be added.
+     * @param {Object} aggregate: The object which contains the information about the aggregate value
+     */
     _apply_aggregate_value: function ($cell, aggregate) {
       var field = this.state.fields[aggregate.fname],
           formatter = field_utils.format[field.type];
       var formattedValue = formatter(aggregate.value, field, {escape: true, });
       $cell.addClass('total').attr('title', aggregate.help).html(formattedValue);
     },
+    /**
+     * Check if the change was successful and then update the grid.
+     * This function is required on relational fields.
+     *
+     * @params {Object} state: Contains the current state of the field & all the data
+     * @params {String} id: the id of the updated object.
+     * @params {Array} fields: The fields we have in the view.
+     * @params {Object} ev: The event object.
+     * @returns {Defered} The defered object thats gonna be resolved when the change is made. 
+     */
     confirmUpdate: function (state, id, fields, ev) {
       var self = this;
       this.state = state;
@@ -336,14 +353,21 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         self._refresh(id);
       });
     },
+    /**
+     * Refresh our grid.
+     *
+     * @private
+     */
     _refresh: function (id) {
       this._updateRow(id);
       this._refreshColTotals();
       this._refreshRowTotals();
     },
-    /*
-    Update row data in our internal rows.
-    */
+    /**
+     *Update row data in our internal rows.
+     *
+     * @params {String} id: The id of the row that needs to be updated.
+     */
     _updateRow: function (id) {
       var self = this,
           record = _.findWhere(self.state.data, {id: id});
@@ -355,10 +379,16 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         });
       });
     },
+    /**
+     * Update the total row.
+     */
     _refreshColTotals: function () {
       this._computeColumnAggregates();
       this.$('tfoot').replaceWith(this._renderFooter());
     },
+    /**
+     * Update the toal column
+     */
     _refreshRowTotals: function () {
       var self = this;
       this._computeRowAggregates();
@@ -368,12 +398,12 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
           $($rows[i]).find('.row-total')
             .replaceWith(self._renderAggregateRowCell(row));
         }
-      })
+      });
     },
     /*
     x2m fields expect this
     */
-    getEditableRecordID: function (){ return false }
+    getEditableRecordID: function (){ return false;}
 
   });
 
