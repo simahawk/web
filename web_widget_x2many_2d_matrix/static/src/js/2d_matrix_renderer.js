@@ -172,6 +172,18 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       this._apply_aggregate_value($cell, row.aggregate);
       return $cell;
     },
+    /**
+     * Render a single body Cell.
+     * Gets the field and renders the widget. We force the edit mode, since
+     * we always want the widget to be editable.
+     *
+     * @private
+     * @param {Object} record: Contains the data for this cell
+     * @param {jQueryElement} node: The HTML of the field.
+     * @param {int} colIndex: The index of the current column.
+     * @param {Object} options: The obtions used for the widget
+     * @returns {jQueryElement} the rendered cell.
+     */
     _renderBodyCell: function (record, node, colIndex, options) {
       var tdClassName = 'o_data_cell';
       if (node.tag === 'button') {
@@ -215,6 +227,12 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       this._handleAttributes(widget.$el, node);
       return $td.append(widget.$el);
     },
+    /**
+     * Wraps the column aggregate with a tfoot element
+     *
+     * @private
+     * @returns {jQueryElement} The footer element with the cells in it.
+     */
     _renderFooter: function () {
       var $cells = this._renderAggregateColCells();
       if ($cells) {
@@ -222,7 +240,13 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       }
       return;
     },
-    _renderAggregateColCells: function (aggregateValues) {
+    /**
+     * Render the Aggregate cells for the column.
+     *
+     * @private
+     * @returns {List} the rendered cells
+     */
+    _renderAggregateColCells: function () {
       var self = this;
       return _.map(this.columns, function (column, index) {
         var $cell = $('<td>', {class: 'col-total text-right'});
@@ -236,6 +260,12 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         return $cell;
       });
     },
+    /**
+     * Compute the column aggregates.
+     * This function is called everytime the value is changed.
+     *
+     * @private
+     */
     _computeColumnAggregates: function () {
       if (!this.matrix_data.show_column_totals) {
         return;
@@ -259,9 +289,15 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         _.each(self.rows, function (row) {
           // var record = _.findWhere(self.state.data, {id: col.data.id});
           column.aggregate.value += row.data[index].data[fname];
-        })
+        });
       });
     },
+        /**
+     * Compute the row aggregates.
+     * This function is called everytime the value is changed.
+     *
+     * @private
+     */
     _computeRowAggregates: function () {
       if (!this.matrix_data.show_row_totals) {
         return;
@@ -284,7 +320,7 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
         };
         _.each(row.data, function (col) {
           row.aggregate.value += col.data[fname];
-        })
+        });
       });
     },
     _apply_aggregate_value: function ($cell, aggregate) {
