@@ -243,7 +243,7 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
     _renderFooter: function () {
       var $cells = this._renderAggregateColCells();
       if ($cells) {
-        return $('<tfoot>').append($('<tr>').append($cells));
+        return $('<tfoot>').append($('<tr>').append('<td/>').append($cells));
       }
       return;
     },
@@ -257,10 +257,6 @@ odoo.define('web_widget_x2many_2d_matrix.X2Many2dMatrixRenderer', function (requ
       var self = this;
       return _.map(this.columns, function (column, index) {
         var $cell = $('<td>', {class: 'col-total text-right'});
-        if (index == 0) {
-          // skip 1st column
-          return $cell;
-        }
         if (column.aggregate) {
           self._apply_aggregate_value($cell, column.aggregate);
         }
